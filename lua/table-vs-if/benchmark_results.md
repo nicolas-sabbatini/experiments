@@ -1,9 +1,3 @@
-# Table vs If
-
-Is faster to execute an if or access a table to execute a function
-
-## Results
-
 | Command        |     Mean [ms] | Min [ms] | Max [ms] |    Relative |
 | :------------- | ------------: | -------: | -------: | ----------: |
 | `luajit table` |  757.2 ± 16.5 |    731.3 |    780.6 |        1.00 |
