@@ -1,14 +1,14 @@
 const std = @import("std");
-const rlz = @import("raylib-zig");
+const rlz = @import("raylib_zig");
 
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const raylib_dep = b.dependency("raylib-zig", .{
+    const raylib_dep = b.dependency("raylib_zig", .{
         .target = target,
         .optimize = optimize,
-        .shared = true,
+        .shared = false,
     });
 
     const raylib = raylib_dep.module("raylib");
@@ -25,9 +25,14 @@ pub fn build(b: *std.Build) !void {
 
         // Note that raylib itself is not actually added to the exe_lib output file, so it also needs to be linked with emscripten.
         const link_step = try rlz.emcc.linkWithEmscripten(b, &[_]*std.Build.Step.Compile{ exe_lib, raylib_artifact });
-        //this lets your program access files like "resources/my-image.png":
-        link_step.addArg("--embed-file");
-        link_step.addArg("assets/");
+
+        // This lets your program access files like "resources/my-image.png":
+        // link_step.addArg("--embed-file");
+        // link_step.addArg("resources/");
+
+        // Custom html
+        link_step.addArg("--shell-file");
+        link_step.addArg("shell.html");
 
         b.getInstallStep().dependOn(&link_step.step);
         const run_step = try rlz.emcc.emscriptenRunStep(b);
@@ -35,17 +40,24 @@ pub fn build(b: *std.Build) !void {
         const run_option = b.step("run", "Run zig-test");
         run_option.dependOn(&run_step.step);
         return;
+    } else {
+        const exe = b.addExecutable(.{
+            .name = "zig-test",
+            .root_source_file = b.path("src/main.zig"), // swap to main_release for release
+            .target = target,
+            .optimize = optimize,
+        });
+        exe.root_module.addImport("raylib", raylib);
+        exe.root_module.addImport("raygui", raygui);
+        exe.linkLibrary(raylib_artifact);
+        if (target.query.os_tag == .windows) {
+            exe.subsystem = .Windows;
+        }
+
+        b.installArtifact(exe);
+
+        const run_cmd = b.addRunArtifact(exe);
+        const run_step = b.step("run", "Run zig-test");
+        run_step.dependOn(&run_cmd.step);
     }
-
-    const exe = b.addExecutable(.{ .name = "zig-test", .root_source_file = b.path("src/main.zig"), .optimize = optimize, .target = target });
-
-    exe.linkLibrary(raylib_artifact);
-    exe.root_module.addImport("raylib", raylib);
-    exe.root_module.addImport("raygui", raygui);
-
-    const run_cmd = b.addRunArtifact(exe);
-    const run_step = b.step("run", "Run zig-test");
-    run_step.dependOn(&run_cmd.step);
-
-    b.installArtifact(exe);
 }

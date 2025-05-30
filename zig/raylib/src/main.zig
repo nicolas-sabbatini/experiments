@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const rl = @import("raylib");
 const gui = @import("raygui");
 
@@ -12,7 +13,7 @@ fn Vec(comptime T: type) type {
         size: usize,
 
         fn init(allocator: std.mem.Allocator) !Vec(T) {
-            return .{ .allocator = allocator, .items = try allocator.alloc(T, 3), .size = 0 };
+            return .{ .allocator = allocator, .items = try allocator.alloc(T, 2), .size = 0 };
         }
 
         fn free(self: Vec(T)) void {
@@ -33,7 +34,7 @@ fn Vec(comptime T: type) type {
         }
 
         fn debug(self: Vec(T)) void {
-            std.debug.print("Vec: \n\tsize: {any},\n\tcapacity: {any}\n\titems: {any}\n", .{ self.size, self.capacity(), self.items[0..self.size] });
+            std.debug.print("Vec: \n\tsize: {any},\n\tcapacity: {any}\n", .{ self.size, self.capacity() });
         }
     };
 }
@@ -64,7 +65,7 @@ pub fn main() anyerror!void {
     //----------------------------------------------------------------------------------
     // rl.setConfigFlags(rl.ConfigFlags{ .window_resizable = true });
 
-    rl.initWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib-zig");
+    rl.initWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib_zig");
     defer rl.closeWindow();
 
     rl.setTargetFPS(60);
@@ -73,8 +74,10 @@ pub fn main() anyerror!void {
 
     var spawn = false;
 
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const allocator = gpa.allocator();
+    const base_allocator = if (builtin.target.cpu.arch.isWasm()) std.heap.c_allocator else std.heap.page_allocator;
+    var arena = std.heap.ArenaAllocator.init(base_allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
 
     var vec = try Vec(Ball).init(allocator);
     defer vec.free();
@@ -100,7 +103,7 @@ pub fn main() anyerror!void {
         }
 
         // The gui acts on release trash
-        if (1 == gui.guiButton(rl.Rectangle.init(24.0, 24.0, 120.0, 30.0), "Spawn ball")) {
+        if (gui.button(rl.Rectangle.init(24.0, 24.0, 120.0, 30.0), "Spawn ball")) {
             spawn = true;
         }
         //----------------------------------------------------------------------------------
