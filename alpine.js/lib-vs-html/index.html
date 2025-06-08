@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="UTF-8" />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </head>
+  <body>
+    <!-- Insertar data -->
+    <!-- Alpine -->
+    <h1 x-data="{ message: 'I ❤️ Alpine' }" x-text="message"></h1>
+    <!-- HTML pelado -->
+    <h1>I ❤️ Alpine</h1>
+
+    <!-- Contadores -->
+    <!-- Alpine -->
+    <div x-data="{ count: 0 }">
+      <button x-on:mousedown="count++">Increment</button>
+      <span x-text="count"></span>
+    </div>
+    <!-- HTML pelado -->
+    <div>
+      <button onmousedown="myCountFunc()">Increment</button>
+      <span id="myCount">0</span>
+      <script>
+        let countVar = 0;
+        function myCountFunc() {
+          countVar++;
+          myCount.textContent = countVar;
+        }
+      </script>
+
+      <!-- Dropdown -->
+      <!-- Alpine -->
+      <div x-data="{ open: false }">
+        <button @mousedown="open = ! open">Toggle</button>
+
+        <div x-show="open" @mousedown.outside="open = false">Contents...</div>
+      </div>
+      <!-- HTML pelado -->
+      <div style="position: relative; display: inline-block">
+        <button onmousedown="myDropdownFunc()" id="myDropdownBtn">
+          Toggle
+        </button>
+        <style>
+          .show {
+            display: block !important;
+          }
+        </style>
+        <script>
+          function myDropdownFunc() {
+            myDropdown.classList.toggle("show");
+          }
+          window.onmousedown = (event) => {
+            if (event.target.id !== "myDropdownBtn") {
+              if (myDropdown.classList.contains("show")) {
+                myDropdown.classList.remove("show");
+              }
+            }
+          };
+        </script>
+        <div style="display: none; position: absolute" id="myDropdown">
+          Contents...
+        </div>
+      </div>
+
+      <!-- Search -->
+      <!-- Alpine -->
+      <div
+        x-data="{
+        search: '',
+        items: ['foo', 'bar', 'baz'],
+        get filteredItems() {
+            return this.items.filter(
+                i => i.startsWith(this.search)
+            )
+        }
+      }"
+      >
+        <input x-model="search" placeholder="Search..." />
+        <ul>
+          <template x-for="item in filteredItems" :key="item" id="test">
+            <li x-text="item"></li>
+          </template>
+        </ul>
+      </div>
+      <!-- HTML pelado -->
+      <input
+        id="mySearchBar"
+        placeholder="Search..."
+        oninput="mySearchFunction()"
+      />
+      <ul id="mySearchResult"></ul>
+      <script>
+        const mySearch = {
+          search: "",
+          items: ["foo", "bar", "baz"],
+          get filteredItems() {
+            console.log("aca");
+            return this.items.filter((i) => i.startsWith(this.search));
+          },
+        };
+        function mySearchFunction() {
+          mySearch.search = mySearchBar.value;
+          const results = [];
+          for (const item of mySearch.filteredItems) {
+            const li = document.createElement("li");
+            li.textContent = item;
+            results.push(li);
+          }
+          mySearchResult.replaceChildren(...results);
+          console.log(mySearchBar);
+        }
+        mySearchFunction();
+      </script>
+    </div>
+  </body>
+</html>
