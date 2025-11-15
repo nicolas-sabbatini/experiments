@@ -28,6 +28,8 @@ compile_flags.txt:
 run: bin/main
 	./fuzzer.sh
 
+build: bin/main
+
 all: compile_flags.txt run
 
 clean:
