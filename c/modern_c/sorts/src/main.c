@@ -27,9 +27,10 @@ void print_array(size_t *arr, size_t from, size_t to) {
   printf("\n");
 }
 
-void print_res(response res) {
-  printf("In - comparisons %zu - swaps %zu - moves %zu\n", res.comp, res.swaps,
-         res.moves);
+void print_res(response res, clock_t start, clock_t end) {
+  double seconds = ((double)(end - start)) / CLOCKS_PER_SEC;
+  printf("In - comparisons %zu - swaps %zu - moves %zu - seconds %f\n",
+         res.comp, res.swaps, res.moves, seconds);
 }
 
 void swap(size_t *arr, size_t a, size_t b) {
@@ -204,6 +205,61 @@ response strand_sort(size_t *arr, size_t size) {
   return res;
 }
 
+response exchange_sort(size_t *arr, size_t size) {
+  response res = {};
+  for (size_t i = 0; i < size - 1; i++) {
+    for (size_t needle = i + 1; needle < size; needle++) {
+      res.comp += 1;
+      if (arr[i] > arr[needle]) {
+        res.swaps += 1;
+        swap(arr, i, needle);
+      }
+    }
+  }
+  return res;
+}
+
+response odd_even_sort(size_t *arr, size_t size) {
+  response res = {};
+  bool sorted = false;
+  while (!sorted) {
+    sorted = true;
+    for (size_t i = 0; i < size - 1; i += 2) {
+      res.comp += 1;
+      if (arr[i] > arr[i + 1]) {
+        res.swaps += 1;
+        sorted = false;
+        swap(arr, i, i + 1);
+      }
+    }
+    for (size_t i = 1; i < size - 1; i += 2) {
+      res.comp += 1;
+      if (arr[i] > arr[i + 1]) {
+        res.swaps += 1;
+        sorted = false;
+        swap(arr, i, i + 1);
+      }
+    }
+  }
+  return res;
+}
+
+response gnome_sort(size_t *arr, size_t size) {
+  response res = {};
+  size_t gnome = 1;
+  while (gnome < size) {
+    res.comp += 1;
+    if (gnome < 1 || arr[gnome - 1] <= arr[gnome]) {
+      gnome += 1;
+    } else {
+      res.swaps += 1;
+      swap(arr, gnome - 1, gnome);
+      gnome -= 1;
+    }
+  }
+  return res;
+}
+
 int main(int argc, char *argv[argc + 1]) {
   // Load arguments
   if (argc == 1) {
@@ -216,15 +272,19 @@ int main(int argc, char *argv[argc + 1]) {
   for (int i = 1; i < argc; i++) {
     to_sort[i - 1] = atoi(argv[i]);
   }
+  clock_t start;
+  clock_t end;
 
   // Attempt select sort
   size_t *to_select = malloc(sort_size);
   memcpy(to_select, to_sort, sort_size);
   printf("==========================================\n");
   printf("Select Sort\n");
+  start = clock();
   response res_select = select_sort(to_select, sort_length);
+  end = clock();
   is_sorted(to_select, sort_length);
-  print_res(res_select);
+  print_res(res_select, start, end);
   free(to_select);
   printf("==========================================\n");
 
@@ -233,9 +293,11 @@ int main(int argc, char *argv[argc + 1]) {
   memcpy(to_bubble, to_sort, sort_size);
   printf("==========================================\n");
   printf("Bubble Sort\n");
+  start = clock();
   response res_bubble = bubble_sort(to_bubble, sort_length);
+  end = clock();
   is_sorted(to_bubble, sort_length);
-  print_res(res_bubble);
+  print_res(res_bubble, start, end);
   free(to_bubble);
   printf("==========================================\n");
 
@@ -244,9 +306,11 @@ int main(int argc, char *argv[argc + 1]) {
   memcpy(to_cocktail, to_sort, sort_size);
   printf("==========================================\n");
   printf("Cocktail Sort\n");
+  start = clock();
   response res_cocktail = cocktail_sort(to_cocktail, sort_length);
+  end = clock();
   is_sorted(to_cocktail, sort_length);
-  print_res(res_cocktail);
+  print_res(res_cocktail, start, end);
   free(to_cocktail);
   printf("==========================================\n");
 
@@ -255,9 +319,11 @@ int main(int argc, char *argv[argc + 1]) {
   memcpy(to_insertion, to_sort, sort_size);
   printf("==========================================\n");
   printf("Insertion Sort\n");
+  start = clock();
   response res_insertion = insertion_sort(to_insertion, sort_length);
+  end = clock();
   is_sorted(to_insertion, sort_length);
-  print_res(res_insertion);
+  print_res(res_insertion, start, end);
   free(to_insertion);
   printf("==========================================\n");
 
@@ -266,10 +332,51 @@ int main(int argc, char *argv[argc + 1]) {
   memcpy(to_strand, to_sort, sort_size);
   printf("==========================================\n");
   printf("Strand Sort\n");
+  start = clock();
   response res_strand = strand_sort(to_strand, sort_length);
+  end = clock();
   is_sorted(to_strand, sort_length);
-  print_res(res_strand);
+  print_res(res_strand, start, end);
   free(to_strand);
+  printf("==========================================\n");
+
+  // Attempt exchange sort
+  size_t *to_exchange = malloc(sort_size);
+  memcpy(to_exchange, to_sort, sort_size);
+  printf("==========================================\n");
+  printf("Exchange Sort\n");
+  start = clock();
+  response res_exchange = exchange_sort(to_exchange, sort_length);
+  end = clock();
+  is_sorted(to_exchange, sort_length);
+  print_res(res_exchange, start, end);
+  free(to_exchange);
+  printf("==========================================\n");
+
+  // Attempt odd even sort
+  size_t *to_odd_even = malloc(sort_size);
+  memcpy(to_odd_even, to_sort, sort_size);
+  printf("==========================================\n");
+  printf("Odd even Sort\n");
+  start = clock();
+  response res_odd_even = odd_even_sort(to_odd_even, sort_length);
+  end = clock();
+  is_sorted(to_odd_even, sort_length);
+  print_res(res_odd_even, start, end);
+  free(to_odd_even);
+  printf("==========================================\n");
+
+  // Attempt gnome sort
+  size_t *to_gnome = malloc(sort_size);
+  memcpy(to_gnome, to_sort, sort_size);
+  printf("==========================================\n");
+  printf("Gnome Sort\n");
+  start = clock();
+  response res_gnome = gnome_sort(to_gnome, sort_length);
+  end = clock();
+  is_sorted(to_gnome, sort_length);
+  print_res(res_gnome, start, end);
+  free(to_gnome);
   printf("==========================================\n");
 
   free(to_sort);
