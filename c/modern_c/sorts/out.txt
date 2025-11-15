@@ -1,0 +1,52 @@
+gcc -Wall -Wextra -std=c23 -pedantic -g -O0 -fsanitize=address -fno-omit-frame-pointer  -DDEBUG -D_DEBUG -c src/main.c -o objects/main.o
+gcc -Wall -Wextra -std=c23 -pedantic -g -O0 -fsanitize=address -fno-omit-frame-pointer  -DDEBUG -D_DEBUG objects/main.o -o bin/main
+./bin/main 0 9 8 1 12 3 0 0
+The array IS NOT sorted
+Sorting the array
+========== start ============
+0	9	8	1	12	3	0	
+0	 12	 0	
+9	 12	 0	
+8	 12	 0	
+1	 12	 0	
+12	 12	 0	
+0	 0	 0	
+0	 0	 3	
+0	9	8	1	0	3	0	
+ Pivote: 4       raw: 4
+========== start ============
+0	9	8	
+0	 8	 1	
+9	 8	 1	
+1	 8	 8	
+0	1	8	
+ Pivote: 2       raw: 2
+========== start ============
+0	
+0	 1	 1	
+0	
+ Pivote: 1       raw: 1
+========== start ============
+
+
+ Pivote: 0       raw: 0
+========== start ============
+
+
+ Pivote: 0       raw: 3
+========== start ============
+3	0	
+3	 0	 12	
+12	 0	 0	
+0	12	
+ Pivote: 1       raw: 6
+========== start ============
+
+
+ Pivote: 0       raw: 5
+========== start ============
+
+
+ Pivote: 0       raw: 7
+The array IS NOT sorted
+0	1	8	9	0	0	12	3	
