@@ -1,0 +1,11 @@
+-Wall
+-Wextra
+-std=c23
+-pedantic
+-g
+-O0
+-fsanitize=address
+-fno-omit-frame-pointer
+
+-DDEBUG
+-D_DEBUG
