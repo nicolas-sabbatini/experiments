@@ -307,6 +307,53 @@ response quick_sort(size_t *arr, size_t size) {
   return quick_sort_recursive(arr, 0, size - 1);
 }
 
+response merge_sort(size_t *arr, size_t size) {
+  response res = {};
+  if (size == 1) {
+    return res;
+  }
+
+  size_t left_size = size / 2 + size % 2;
+  size_t *left = malloc(left_size * sizeof(size_t));
+  memcpy(left, arr, left_size * sizeof(size_t));
+  response left_res = merge_sort(left, left_size);
+  res.comp += left_res.comp;
+  res.moves += left_res.comp;
+
+  size_t right_size = size / 2;
+  size_t *right = malloc(right_size * sizeof(size_t));
+  memcpy(right, &arr[left_size], right_size * sizeof(size_t));
+  response right_res = merge_sort(right, right_size);
+  res.comp += right_res.comp;
+  res.moves += right_res.comp;
+
+  size_t left_i = 0;
+  size_t right_i = 0;
+  for (size_t i = 0; i < size; i++) {
+    if (left_i < left_size && right_i >= right_size) {
+      arr[i] = left[left_i];
+      left_i++;
+      res.moves += 1;
+    } else if (left_i >= left_size && right_i < right_size) {
+      arr[i] = right[right_i];
+      right_i++;
+      res.moves += 1;
+    } else if (left[left_i] <= right[right_i]) {
+      arr[i] = left[left_i];
+      left_i++;
+      res.comp += 1;
+    } else {
+      arr[i] = right[right_i];
+      right_i++;
+      res.comp += 1;
+    }
+  }
+
+  free(left);
+  free(right);
+  return res;
+}
+
 int main(int argc, char *argv[argc + 1]) {
   // Load arguments
   if (argc == 1) {
@@ -438,6 +485,20 @@ int main(int argc, char *argv[argc + 1]) {
   print_res(res_quick, start, end);
   free(to_quick);
   printf("==========================================\n");
+
+  // Attempt merge sort
+  size_t *to_merge = malloc(sort_size);
+  memcpy(to_merge, to_sort, sort_size);
+  printf("==========================================\n");
+  printf("Merge Sort\n");
+  start = clock();
+  response res_merge = merge_sort(to_merge, sort_length);
+  end = clock();
+  is_sorted(to_merge, sort_length);
+  print_res(res_merge, start, end);
+  free(to_merge);
+  printf("==========================================\n");
+
   free(to_sort);
   return EXIT_SUCCESS;
 }
