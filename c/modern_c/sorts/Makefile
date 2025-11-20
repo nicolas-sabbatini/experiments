@@ -35,4 +35,4 @@ all: compile_flags.txt run
 clean:
 	rm -fr bin objects compile_flags.txt
 
-.PHONY: all clean compile_flags.txt
+.PHONY: all clean compile_flags.txt build

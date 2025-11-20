@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define cuántos números aleatorios quieres generar
-NUM_VALUES=300000
+NUM_VALUES=1000 #261515
 
 # Rango: de 1 a 100
 MIN=1

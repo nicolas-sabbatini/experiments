@@ -260,6 +260,53 @@ response gnome_sort(size_t *arr, size_t size) {
   return res;
 }
 
+response quick_sort_recursive(size_t *arr, size_t start, size_t end) {
+  response res = {};
+  size_t pivot = arr[(rand() % (end - start + 1)) + start];
+  size_t low = start;
+  size_t high = end;
+  while (low <= high) {
+    while (arr[low] < pivot && low < end) {
+      res.comp += 1;
+      low++;
+    }
+    res.comp += 1;
+    while (arr[high] > pivot && high > start) {
+      res.comp += 1;
+      high--;
+    }
+    res.comp += 1;
+    if (low <= high) {
+      if (low != high) {
+        res.swaps += 1;
+        swap(arr, low, high);
+      }
+      if (low < end) {
+        low++;
+      }
+      if (high > start) {
+        high--;
+      }
+    }
+  }
+  if (start < high) {
+    response child = quick_sort_recursive(arr, start, high);
+    res.comp += child.comp;
+    res.swaps += child.swaps;
+  }
+  if (end > low) {
+    response child = quick_sort_recursive(arr, low, end);
+    res.comp += child.comp;
+    res.swaps += child.swaps;
+  }
+  return res;
+}
+
+response quick_sort(size_t *arr, size_t size) {
+  srand(time(NULL));
+  return quick_sort_recursive(arr, 0, size - 1);
+}
+
 int main(int argc, char *argv[argc + 1]) {
   // Load arguments
   if (argc == 1) {
@@ -379,6 +426,18 @@ int main(int argc, char *argv[argc + 1]) {
   free(to_gnome);
   printf("==========================================\n");
 
+  // Attempt quick sort
+  size_t *to_quick = malloc(sort_size);
+  memcpy(to_quick, to_sort, sort_size);
+  printf("==========================================\n");
+  printf("Quick Sort\n");
+  start = clock();
+  response res_quick = quick_sort(to_quick, sort_length);
+  end = clock();
+  is_sorted(to_quick, sort_length);
+  print_res(res_quick, start, end);
+  free(to_quick);
+  printf("==========================================\n");
   free(to_sort);
   return EXIT_SUCCESS;
 }
